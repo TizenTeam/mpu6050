@@ -40,6 +40,7 @@ var i2c = require('i2c');
  * @see MPU6050.DEFAULT_ADDRESS
  */
 function MPU6050(device, address) {
+  console.log("log: ");
   this.device = device || '/dev/i2c-1';
   this.address = address || MPU6050.DEFAULT_ADDRESS;
 }
@@ -56,7 +57,8 @@ MPU6050.DEFAULT_ADDRESS = MPU6050.ADDRESS_AD0_LOW;
  * the clock source to use the X Gyro for reference, which is slightly better than
  * the default internal clock source.
  */
-MPU6050.prototype.initialize = function(callback) { 
+MPU6050.prototype.initialize = function(callback) {
+  console.log("log: ");
   this.setClockSource(MPU6050.CLOCK_PLL_XGYRO);
   this.setFullScaleGyroRange(MPU6050.GYRO_FS_250);
   this.setFullScaleAccelRange(MPU6050.ACCEL_FS_2);
@@ -69,6 +71,7 @@ MPU6050.prototype.initialize = function(callback) {
  * @param callback
  */
 MPU6050.prototype.testConnection = function(callback) {
+  console.log("log: ");
   this.getDeviceID(function (err, data) {
     if (err) {
       return callback(err);
@@ -91,6 +94,7 @@ MPU6050.WHO_AM_I_LENGTH = 6;
  * @return Device ID (should be 0x68, 104 dec, 150 oct)
  */
 MPU6050.prototype.getDeviceID = function(callback) {
+  console.log("log: ");
   this.i2cdev.readBits(MPU6050.RA_WHO_AM_I, MPU6050.WHO_AM_I_BIT, MPU6050.WHO_AM_I_LENGTH, callback);
 };
 
@@ -130,6 +134,7 @@ MPU6050.GYRO_FS_2000 = 0x03;
  * @param callback
  */
 MPU6050.prototype.getFullScaleGyroRange = function(callback) {
+  console.log("log: ");
   this.i2cdev.readBits(MPU6050.RA_GYRO_CONFIG, MPU6050.GCONFIG_FS_SEL_BIT, MPU6050.GCONFIG_FS_SEL_LENGTH, callback);
 };
 
