@@ -56,9 +56,7 @@ MPU6050.DEFAULT_ADDRESS = MPU6050.ADDRESS_AD0_LOW;
  * the clock source to use the X Gyro for reference, which is slightly better than
  * the default internal clock source.
  */
-MPU6050.prototype.initialize = function(callback) {
-  this.i2cdev = new I2cDev(this.address, {device : this.device});
-  
+MPU6050.prototype.initialize = function(callback) { 
   this.setClockSource(MPU6050.CLOCK_PLL_XGYRO);
   this.setFullScaleGyroRange(MPU6050.GYRO_FS_250);
   this.setFullScaleAccelRange(MPU6050.ACCEL_FS_2);
@@ -391,10 +389,35 @@ module.exports = MPU6050;
  * in the i2cdev library that the MPU60X0 library uses.
  */
 function I2cDev(address, options) {
-  i2c.call(this, address, options);
+  //  i2c.call(this, address, options);
+  
+  var options = {
+    bus: 1,
+    device: '/dev/i2c-1',
+    address: 0x77,
+    mode: 0,
+    units: 'metric'
+  };
+
+  this.wire = i2c.openSync(options);
+
+  this.wire.writeBytes = function(offset, bytes, callback) {
+    var bytes = [offset].concat(bytes);
+    this.wire.writeSync(bytes);
+    callback(null);
+  }
+  this.wire.readBytes = function(offset, len, callback) {
+    this.writeSync([offset]);
+    this.wire.read(len, function(err, res) {
+      callback(err, res);
+    });
+  }
 }
 
-I2cDev.prototype = Object.create(i2c.prototype);
+//I2cDev.prototype = Object.create(i2c.prototype);
+I2cDev.prototype = {
+};
+
 I2cDev.prototype.constructor = I2cDev;
 
 I2cDev.prototype.bitMask = function(bit, bitLength) {
@@ -404,22 +427,22 @@ I2cDev.prototype.bitMask = function(bit, bitLength) {
 I2cDev.prototype.readBits = function(func, bit, bitLength, callback) {
   var mask = this.bitMask(bit, bitLength);
   
-  this.readBytes(func, 1, function(err, buf) {
+  this.wire.readBytes(func, 1, function(err, buf) {
     var bits = (buf[0] & mask) >> (1 + bit - bitLength);
     callback(err, bits);
   });
 };
 
 I2cDev.prototype.readBit = function(func, bit, bitLength, callback) {
-  this.readBits(func, bit, 1, callback);
+  this.wire.readBits(func, bit, 1, callback);
 };
 
 I2cDev.prototype.writeBits = function(func, bit, bitLength, value) {
   var self = this;
-  self.readBytes(func, 1, function(err, oldValue) {
+  self.wire.readBytes(func, 1, function(err, oldValue) {
     var mask = self.bitMask(bit, bitLength);
     var newValue = oldValue ^ ((oldValue ^ (value << bit)) & mask);
-    self.writeBytes(func, [newValue], function (err) {
+    self.wire.writeBytes(func, [newValue], function (err) {
       if (err) {
         throw err;
       }
@@ -428,6 +451,6 @@ I2cDev.prototype.writeBits = function(func, bit, bitLength, value) {
 };
 
 I2cDev.prototype.writeBit = function(func, bit, value) {
-  this.writeBits(func, bit, 1, value);
+  this.wire.writeBits(func, bit, 1, value);
 };
 
