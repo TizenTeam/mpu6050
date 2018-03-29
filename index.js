@@ -63,6 +63,8 @@ MPU6050.prototype.initialize = function(callback) {
   this.setFullScaleGyroRange(MPU6050.GYRO_FS_250);
   this.setFullScaleAccelRange(MPU6050.ACCEL_FS_2);
   this.setSleepEnabled(false);
+
+  if (callback) callback(null);
 };
 
 /**
