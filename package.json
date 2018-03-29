@@ -4,7 +4,7 @@
   "description": "A minimal module for reading the raw data from an MPU6050.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified! Configure in package.json\" && exit 1"
+    "test": "NODE_PATH=../mpu6050/.. node example.js"
   },
   "repository": {
     "type": "git",
